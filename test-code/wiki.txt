@@ -1,0 +1,5 @@
+# disassemble raw binary:
+objdump -D -b binary -m i386  <file>
+
+# disassemble elf binary
+objdump -d <file>
