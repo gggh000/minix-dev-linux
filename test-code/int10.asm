@@ -4,20 +4,60 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'11'
+	db	'12'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, 'G'                 ; char 2 display.
-        int     0x10
+        ;int     0x10
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '6'                 ; char 2 display.
+        ;int     0x10
+
+;	print few lines from 7c00.
+
+	mov	ax, 0x000
+	mov	ds, ax
+	sub	si, si			; ds:si = 0x7c00.
+	add	esi, 0x7c00
+	mov	cx, 0x10		; one line 16 chars to print.
+loop1:
+	mov 	al, [esi]	        ; char to write
+        mov     ah, 0x0e                ; int 10h, write char.
+	and	al, 0xf0		; leave only 1st nibble
+	shr	al, 4			; set 1st nibble on the 2nd nibble position.
+	add	al, 0x30
+	cmp	al, 0x3a		; [0-9]
+	jl 	loop1_2
+	add	al, 0x07		; [A-Z]
+loop1_2:
         int     0x10
 
+	mov 	ax, [esi]	        ;  char to write
+        mov     ah, 0x0e                ; int 10h, write char.
+	and	al, 0x0f		; leave only 2nd nibble
+	add	al, 0x30
+	cmp	al, 0x3a		; [0-9]
+	jl 	loop1_2a
+	add	al, 0x07		; [A-Z]
+loop1_2a:
+        int     0x10
+
+	mov	ah, 0x0e
+	mov	al, ' '
+	int 	0x10
+
+	inc	esi
+	loopne 	loop1
+	
+	jmp 	$
+
+;	copy to 0:8000 the first sector.
+
 	mov	ah, 0x42		; bios 13h extended read service code.
-	mov	dl, 0x81		; drive No.
+	mov	dl, 0x80		; drive No.
 
 ;	DS:SI - pointer to DAP (disk access packet).
 
@@ -27,26 +67,6 @@ loop0:
 
 	int 	0x13			; issue the command.
 
-;	print few lines from there.
-
-	mov	ax, 0x000
-	mov	ds, ax
-	sub	si, si			; ds:si = 0x8000.
-	add	esi, 0x8000
-	mov	cx, 0x10		; one line 16 chars to print.
-	sub	esi, esi
-loop1:
-	mov 	ax, [esi]	        ;  char to write
-        mov     ah, 0x0e                ; int 10h, write char.
-	add	al, 0x30
-	cmp	al, 0x3a		; [0-9]
-	jl 	loop1_2
-	add	al, 0x07		; [A-Z]
-loop1_2:
-        int     0x10
-	inc	esi
-	loopne 	loop1
-	
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
