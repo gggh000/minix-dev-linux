@@ -4,13 +4,13 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'12'
+	db	'15'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'A'                 ; char 2 display.
+	mov 	al, 'E'                 ; char 2 display.
         int     0x10
 
 ;	print few lines from 7c00.
@@ -48,7 +48,7 @@ loop1_2a:
 
 	inc	esi
 	loopne 	loop1
-	
+
 ;	copy to 0:8000 the first sector.
 
 	mov	ah, 0x42		; bios 13h extended read service code.
@@ -59,6 +59,7 @@ loop1_2a:
 	mov	ax, 0x7c00
 	mov	ds, ax
 ;	lea	si, [DAP]
+;	mov	si, [DAP]
 
 ;	int 	0x13			; issue the command.
 
@@ -71,12 +72,15 @@ loop1_2a:
 	push 	ax
 	ret
 
-DAP:
+        section   .data
 ;	DAP packet for bios int 13h (ah=0x42)
+	align	16
+	db	'DAP'
+DAP:
+	align	16
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
 	dw	0x02			; No. of sectors to read.
 	dd	0x00008000		; segment:offset of target location in memory
 	dd	0x0			; not sure this needs to be inspected using ext2 on hdd not fdd.
 
-        section   .data
