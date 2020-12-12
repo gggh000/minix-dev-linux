@@ -1,4 +1,5 @@
-./clean.sh
+./clear.sh
+clear
 TARGET_DISK=/dev/nbd0
 TARGET_DISK=/var/lib/libvirt/images/minix-boot-1.qcow2
 NBD_IMAGE=nbd.out

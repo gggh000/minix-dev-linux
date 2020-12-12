@@ -4,14 +4,24 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'16'
+	db	'22'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'F'                 ; char 2 display.
+	mov 	al, 'E'                 ; char 2 display.
         int     0x10
+
+;	copy to 0:8000 the first sector.
+
+	mov	ah, 0x42		; bios 13h extended read service code.
+	mov	dl, 0x80		; drive No.
+
+;	DS:SI - pointer to DAP (disk access packet).
+
+	mov	si, [DAP]
+	int 	0x13			; issue the command.
 
 ;	print few lines from 7c00.
 
@@ -48,20 +58,6 @@ loop1_2a:
 
 	inc	esi
 	loopne 	loop1
-
-;	copy to 0:8000 the first sector.
-
-	mov	ah, 0x42		; bios 13h extended read service code.
-	mov	dl, 0x80		; drive No.
-
-;	DS:SI - pointer to DAP (disk access packet).
-
-	mov	ax, 0x7c00
-	mov	ds, ax
-;	lea	si, [DAP]
-	mov	si, DAP
-
-	int 	0x13			; issue the command.
 
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
