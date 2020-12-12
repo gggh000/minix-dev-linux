@@ -4,13 +4,13 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'22'
+	db	'23'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'E'                 ; char 2 display.
+	mov 	al, 'C'                 ; char 2 display.
         int     0x10
 
 ;	copy to 0:8000 the first sector.
@@ -28,7 +28,7 @@ loop0:
 	mov	ax, 0x000
 	mov	ds, ax
 	sub	si, si			; ds:si = 0x7c00.
-	add	esi, 0x7c00
+	add	esi, 0x8000
 	mov	cx, 0x10		; one line 16 chars to print.
 loop1:
 	mov 	al, [esi]	        ; char to write
