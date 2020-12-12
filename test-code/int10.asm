@@ -3,18 +3,19 @@
             section   .text
 _start:     
 ;	set video mode
+	jmp	loop0
+	db	'11'
 	mov	ax, 0x0002
 	int	0x10
-
+loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, 'G'                 ; char 2 display.
         int     0x10
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, '4'                 ; char 2 display.
+	mov 	al, '6'                 ; char 2 display.
         int     0x10
 
-	jmp	$	
 	mov	ah, 0x42		; bios 13h extended read service code.
 	mov	dl, 0x81		; drive No.
 

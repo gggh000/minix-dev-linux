@@ -24,13 +24,23 @@ if [[ $P1 == "rm" ]] ; then
 	#qemu-img create -f raw $IMAGE_NAME 8G
 	#ls -l /var/lib/libvirt/images/
 
-	echo "attaching/mounting qcow on host..."
-	echo "nbd devices before connect..."
-	ls -l /dev/nbd*| grep nbd
-	modprobe nbd max_part=8
-	qemu-nbd --connect=/dev/nbd0 $IMAGE_NAME --format=raw --nocache
-	echo "nbd devices after connect..."
-	ls -l /dev/nbd*| grep nbd
+	#echo "attaching/mounting qcow on host..."
+	#echo "nbd devices before connect..."
+	#ls -l /dev/nbd*| grep nbd
+	#modprobe nbd max_part=8
+	#qemu-nbd --connect=/dev/nbd0 $IMAGE_NAME --format=raw --nocache
+	#qemu-nbd --connect=/dev/nbd0 $IMAGE_NAME --nocache
+	#echo "nbd devices after connect..."
+	#ret=`ls -l /dev/nbd*| grep nbd0p1 | wc -l`
+
+	#echo "ret: $ret"
+
+	#if [[ $ret -eq 0 ]] ; then 
+	#	echo "nbd0p1 is not found. The image should have linux partition. disrepancy!!!" ; 
+	#	exit 1
+	#else
+		ls -l /dev/nbd*
+	#fi
 
 	#echo "Showing paritions on new qcow disk image..."
 	#parted /dev/nbd0 mklabel msdos
@@ -41,13 +51,13 @@ if [[ $P1 == "rm" ]] ; then
 
 	
 elif [[ $P1 == "add" ]] ; then
-	echo "disconnect sd device..."
-	qemu-nbd --disconnect /dev/nbd0
-	modprobe -r nbd
+	#echo "disconnect sd device..."
+	#qemu-nbd --disconnect /dev/nbd0
+	#modprobe -r nbd
 	echo "attaching second hdd"
 	sleep 3
 	#service qemu-kvm restart ; sleep 1
-	virsh attach-disk --domain $VM_NAME --source $IMAGE_NAME --target $DISK_NAME --cache none --config
+	virsh attach-disk --domain $VM_NAME --source $IMAGE_NAME --target $DISK_NAME  --config  --cache none --persistent
 	# detach during live vm running not working so following unnecessary unless detach part works.
 	#virsh attach-disk --domain $VM_NAME --source $IMAGE_NAME --target $DISK_NAME --config --live
 	sleep 3
