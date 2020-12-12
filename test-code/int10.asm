@@ -8,12 +8,13 @@ _start:
 
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, '&'                 ; char 2 display.
+	mov 	al, 'G'                 ; char 2 display.
         int     0x10
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, '_'                 ; char 2 display.
+	mov 	al, '4'                 ; char 2 display.
         int     0x10
 
+	jmp	$	
 	mov	ah, 0x42		; bios 13h extended read service code.
 	mov	dl, 0x81		; drive No.
 
@@ -27,11 +28,12 @@ _start:
 
 ;	print few lines from there.
 
-	mov	ax, 0x8000
+	mov	ax, 0x000
 	mov	ds, ax
 	sub	si, si			; ds:si = 0x8000.
 	add	esi, 0x8000
 	mov	cx, 0x10		; one line 16 chars to print.
+	sub	esi, esi
 loop1:
 	mov 	ax, [esi]	        ;  char to write
         mov     ah, 0x0e                ; int 10h, write char.
@@ -41,10 +43,11 @@ loop1:
 	add	al, 0x07		; [A-Z]
 loop1_2:
         int     0x10
+	inc	esi
 	loopne 	loop1
 	
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, '?'                 ; char 2 display.
+	mov 	al, '1'                 ; char 2 display.
         int     0x10
 
 	jmp	$
