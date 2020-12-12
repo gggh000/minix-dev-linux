@@ -10,11 +10,8 @@ _start:
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'G'                 ; char 2 display.
-        ;int     0x10
-        mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, '6'                 ; char 2 display.
-        ;int     0x10
+	mov 	al, 'A'                 ; char 2 display.
+        int     0x10
 
 ;	print few lines from 7c00.
 
@@ -52,8 +49,6 @@ loop1_2a:
 	inc	esi
 	loopne 	loop1
 	
-	jmp 	$
-
 ;	copy to 0:8000 the first sector.
 
 	mov	ah, 0x42		; bios 13h extended read service code.
@@ -63,9 +58,9 @@ loop1_2a:
 
 	mov	ax, 0x7c00
 	mov	ds, ax
-	lea	si, [DAP]
+;	lea	si, [DAP]
 
-	int 	0x13			; issue the command.
+;	int 	0x13			; issue the command.
 
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
