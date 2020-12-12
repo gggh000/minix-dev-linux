@@ -4,13 +4,13 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'15'
+	db	'16'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'E'                 ; char 2 display.
+	mov 	al, 'F'                 ; char 2 display.
         int     0x10
 
 ;	print few lines from 7c00.
@@ -59,9 +59,9 @@ loop1_2a:
 	mov	ax, 0x7c00
 	mov	ds, ax
 ;	lea	si, [DAP]
-;	mov	si, [DAP]
+	mov	si, DAP
 
-;	int 	0x13			; issue the command.
+	int 	0x13			; issue the command.
 
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
