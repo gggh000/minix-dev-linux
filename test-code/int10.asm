@@ -20,8 +20,16 @@ loop0:
 
 ;	DS:SI - pointer to DAP (disk access packet).
 
-	mov	si, [DAP]
+	mov	si,  0
+	mov	ds, si
+	mov	si, 0x80
 	int 	0x13			; issue the command.
+	jnc	ok_1
+	mov	al, '!'
+	mov	ah, 0x9	
+	int 	0x10
+	jmp	$
+ok_1:
 
 ;	print few lines from 7c00.
 
@@ -76,7 +84,8 @@ DAP:
 	align	16
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
-	dw	0x02			; No. of sectors to read.
-	dd	0x00008000		; segment:offset of target location in memory
+	dw	0x01			; No. of sectors to read.
+	dw	0x8000			; target segment.
+	dw	0x0000			; target offset.
 	dd	0x0			; not sure this needs to be inspected using ext2 on hdd not fdd.
 
