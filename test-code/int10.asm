@@ -22,7 +22,7 @@ loop0:
 
 	mov	si,  0
 	mov	ds, si
-	mov	si, 0x80
+	mov	si, [DAP_text]
 	int 	0x13			; issue the command.
 	jnc	ok_1
 	mov	al, '!'
@@ -75,6 +75,19 @@ loop1_2a:
 	mov	ax, 0x8000
 	push 	ax
 	ret
+
+;	DAP packet for bios int 13h (ah=0x42)
+	align	16
+	db	'DAP.text'
+DAP_text:
+	align	16
+	db 	0x10			; size of this data struct.
+	db 	0x00			; unused.
+	dw	0x01			; No. of sectors to read.
+	dw	0x8000			; target segment.
+	dw	0x0000			; target offset.
+	dd	0x0			; not sure this needs to be inspected using ext2 on hdd not fdd.
+
 
         section   .data
 ;	DAP packet for bios int 13h (ah=0x42)
