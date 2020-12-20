@@ -1,7 +1,12 @@
 ./clear.sh
 clear
+TARGET_DISK_LOC=/var/lib/libvirt/images/
 TARGET_DISK=/dev/nbd0
-TARGET_DISK=/var/lib/libvirt/images/minix-boot-1.qcow2
+TARGET_DISK_VDI=/var/lib/libvirt/images/minix-boot-1.qcow2
+
+#	For use with virtual box
+
+TARGET_DISK_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 NBD_IMAGE=nbd.out
 nasm -felf64 -F dwarf int10.asm
 ld int10.o
@@ -11,4 +16,8 @@ dd if=a1.out of=$TARGET_DISK bs=1 count=446 conv=notrunc
 hexdump -C $TARGET_DISK -n 512
 dd if=$TARGET_DISK of=$NBD_IMAGE bs=512 count=1
 #objdump -D -b binary -m i386  $NBD_IMAGE
+
+echo "Convering raw image to vdi format compatible with virtualbox."
+qemu-img convert -f raw -O vdi $TARGET_DISK $TARGET_DISK_VDI
+ls -l $TARGET_DISK_LOC
 
