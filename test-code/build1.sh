@@ -8,6 +8,10 @@ TARGET_DISK_VDI=/var/lib/libvirt/images/minix-boot-1.qcow2
 
 TARGET_DISK_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 NBD_IMAGE=nbd.out
+
+echo "Convering vdi image to raw format..."
+qemu-img convert -f vdi -O raw $TARGET_DISK_VDI $TARGET_DISK
+
 nasm -felf64 -F dwarf int10.asm
 ld int10.o
 echo "use gdb a.out to start debugging"

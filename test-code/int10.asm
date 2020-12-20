@@ -3,6 +3,7 @@
             section   .text
 _start:     
 ;	set video mode
+	jmp 	$
 	jmp	loop0
 	db	'23'
 	mov	ax, 0x0002
