@@ -1,0 +1,1 @@
+virtualbox –startvm minix-boot
