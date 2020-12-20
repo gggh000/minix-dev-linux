@@ -3,7 +3,6 @@
             section   .text
 _start:     
 ;	set video mode
-	jmp 	$
 	jmp	loop0
 	db	'23'
 	mov	ax, 0x0002
@@ -13,6 +12,8 @@ loop0:
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, 'C'                 ; char 2 display.
         int     0x10
+
+	jmp 	$
 
 ;	copy to 0:8000 the first sector.
 
