@@ -4,7 +4,7 @@
 _start:     
 ;	set video mode
 	jmp	loop0
-	db	'23'
+	db	'24'
 	mov	ax, 0x0002
 	int	0x10
 loop0:
@@ -20,9 +20,9 @@ loop0:
 
 ;	DS:SI - pointer to DAP (disk access packet).
 
-	mov	si,  0
-	mov	ds, si
-	lea	si, [DAP]
+	mov	si,  0x7c0
+	mov	ds, si	
+	lea	si, [DAP_text]
 	int 	0x13			; issue the command.
 	jnc	ok_1
 	mov	al, '!'
@@ -78,8 +78,8 @@ loop1_2a:
 ;	DAP packet for bios int 13h (ah=0x42)
 	align	16
 	db	'DAP.text'
-DAP_text:
 	align	16
+DAP_text:
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
 	dw	0x01			; No. of sectors to read.
@@ -96,8 +96,10 @@ DAP:
 	align	16
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
-	dw	0x01			; No. of sectors to read.
-	dw	0x8000			; target segment.
+	dw	0x02			; No. of sectors to read.
+	dw	0x8000			; offset.
+	dw	0x0000			; segment.
 	dw	0x0000			; target offset.
-	dd	0x0			; not sure this needs to be inspected using ext2 on hdd not fdd.
+	dd	0x0			; sector 0 hi?.
+	dd	0x0			; sector 0 lo?.
 
