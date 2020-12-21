@@ -10,10 +10,8 @@ _start:
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'E'                 ; char 2 display.
+	mov 	al, 'F'                 ; char 2 display.
         int     0x10
-
-	jmp 	$
 
 ;	copy to 0:8000 the first sector.
 
@@ -24,13 +22,12 @@ loop0:
 
 	mov	si,  0
 	mov	ds, si
-	mov	si, [DAP_text]
+	lea	si, [DAP]
 	int 	0x13			; issue the command.
 	jnc	ok_1
 	mov	al, '!'
 	mov	ah, 0x9	
 	int 	0x10
-	jmp	$
 ok_1:
 
 ;	print few lines from 7c00.
