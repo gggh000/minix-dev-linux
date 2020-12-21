@@ -10,7 +10,7 @@ _start:
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'C'                 ; char 2 display.
+	mov 	al, 'E'                 ; char 2 display.
         int     0x10
 
 	jmp 	$
