@@ -19,6 +19,12 @@ IMAGE_NAME=/var/lib/libvirt/images/minix-boot-1.vdi
 if [[ $P1 == "stop" ]] ; then
 	vboxmanage controlvm $VM_NAME poweroff
 	vboxmanage storageattach $VM_NAME --type hdd --medium None  --storagectl SATA --device 0 --port 1
+	vboxmanage list hdds
+	echo "Closing medium $IMAGE_NAME..."
+	#vboxmanage closemedium disk aab4e396-1a1d-4803-8208-7bbf44cffd99
+	vboxmanage closemedium disk $IMAGE_NAME
+	vboxmanage list hdds
+
 elif [[ $P1 == "start" ]] ; then
         echo "attaching hdd vbox vm..."
 
