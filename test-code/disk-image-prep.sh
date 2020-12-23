@@ -13,7 +13,7 @@
 
 #	There is a single boot.bin file which is loaded by MBR boot loader.
 #	MBR boot loader will handle only direct block pointers (max 12) in its directory entry therefore, boot.bin's maximum size
-#	is 12 x 4095 = 49152 bytes. 
+#	is 12 x 4096 = 49152 bytes. 
 	
 #	Build1.sh script will build the boot.bin and replace, upon detecting the file size exceeding 49152 bytes then it should cause build error.
 
@@ -37,7 +37,9 @@
 	
 dd if=/dev/zero of=/sda/boot.bin bs=4096 count=12
 
+#	extract /dev/sda1 volume from disk image. Could be useful for utilities. i.e. dumpe2fs.
 
+dd if=$IMAGE_NAME of=./sda1.bin bs=512 skip=2048 
 
 
 

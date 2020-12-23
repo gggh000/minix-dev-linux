@@ -71,6 +71,19 @@ loop1_2a:
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
 
+;	 Dir entry for boot.bin starts at 0044302c. 
+;	inode is 0xb(11d)
+
+;  	Group 0: (Blocks 0-32767)
+;  	Primary superblock at 0, Group descriptors at 1-1
+; 	Reserved GDT blocks at 2-320
+;  	Block bitmap at 321 (+321)
+;  	Inode bitmap at 322 (+322)
+;  	Inode table at 323-834 (+323)
+;  	31926 free blocks, 8180 free inodes, 2 directories
+;  	Free blocks: 841-1023, 1025-32767
+;  	Free inodes: 13-8192
+
 	jmp	$
 	mov	ax, 0x8000
 	push 	ax
