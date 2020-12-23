@@ -10,6 +10,12 @@ VM_NAME=minix-boot
 IMAGE_NAME=/var/lib/libvirt/images/minix-boot-1.qcow2
 DISK_NAME=hdc
 MOUNT_POINT_PP=/sda
+
+if [[ ! -f $IMAGE_NAME ]] ; then
+	echo "Error. Can not find $IMAGE_NAME. File does not exist. "
+	exit 1
+fi
+
 if [[ $P1 == "rm" ]] ; then
 	echo "removing second hdd"
 	virsh destroy $VM_NAME
@@ -26,6 +32,7 @@ if [[ $P1 == "rm" ]] ; then
 	OFFSET_PP=$(($SECTOR_START_PP * $BYTES_PER_SECTOR))
 	echo "offset of primary partition: $OFFSET_PP"
 	mkdir $MOUNT_POINT_PP -p
+	echo mount $IMAGE_NAME -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
 	mount $IMAGE_NAME -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
 	echo "Content of primary partition..."
 	ls -l  $MOUNT_POINT_PP
