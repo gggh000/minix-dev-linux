@@ -1,9 +1,13 @@
-# detach-disk not working while vm running due to hotplug disk is not supported for this type of disk
-# https://serverfault.com/questions/457250/kvm-and-libvirt-how-do-i-hotplug-a-new-virtio-disk
-# root@ixt-hq-44:/git.co/dev-learn/c/asm-c-linkage# ./config-target-vm.sh rm
-# removing second hdd
-# error: Failed to detach disk
-# error: Operation not supported: This type of disk cannot be hot unplugged
+#	Use this script for two functions.
+#	./config-target-vm.sh add - will attach the IMAGE_NAME disk to kvm guest VM and start booting from this drive.
+#	Prior to attaching, dismount from /sda will take place.
+
+#	./config-target-vm.sh rm - will shutdown the kvm guest VM and detach the IMAGE_NAME and mount on host file system
+#	under mount point /sda.
+
+#	when mounting under host file system, the first partition offset is found by using fdisk and offset into first partition
+#	to mount. The IMAGE_NAME assumes there is only one primary, first partition which taking entire IMAGE_NAME size
+#	and formatted as an ext2. 
 
 P1=$1
 VM_NAME=minix-boot
