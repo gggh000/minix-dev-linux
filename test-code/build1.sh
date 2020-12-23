@@ -4,7 +4,7 @@ CONFIG_BUILD_32=1
 CONFIG_BUILD_64=2
 CONFIG_BUILD_BIN=3
 CONFIG_BUILD_OUTPUT_TYPE=$CONFIG_BUILD_BIN
-
+MBR_BOOT_ASM=mbrboot.asm
 
 TARGET_DISK_LOC=/var/lib/libvirt/images/
 #TARGET_DISK=/dev/nbd0
@@ -20,16 +20,16 @@ qemu-img convert -f vdi -O raw $TARGET_DISK_VDI $TARGET_DISK
 
 if [[ $CONFIG_BUILD_OUTPUT_TYPE -eq $CONFIG_BUID_32 ]] ; then
 	echo "Building 32  bit binary..."
-	nasm -f bin -F dwarf int10.asm
+	nasm -f bin -F dwarf $MBR_BOOT_ASM
  	ld int10.o
 elif [[ $CONFIG_BUILD_OUTPUT_TYPE  -eq $CONFIG_BUILD_BIN ]] ; then
 	echo "Building raw binary..."
-	nasm -f bin int10.asm
+	nasm -f bin $MBR_BOOT_ASM
 	mv int10 a1.out
 
 elif [[ $CONFIG_BUILD_OUTPUT_TYPE  -eq $CONFIG_BUILD_64 ]] ; then
 	echo "Building 64-bit binary..."
-	nasm -felf64 -F dwarf int10.asm
+	nasm -felf64 -F dwarf $MBR_BOOT_ASM
 	ld int10.o
 	echo "use gdb a.out to start debugging"
 	tail -c $((` wc -c a.out | cut -d ' ' -f1`-0xb0)) a.out | head -c 446 > a1.out
