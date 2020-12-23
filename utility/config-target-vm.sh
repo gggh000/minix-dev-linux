@@ -24,7 +24,6 @@ if [[ $P1 == "rm" ]] ; then
 	echo "removing second hdd"
 	virsh destroy $VM_NAME
 	virsh list
-	#virsh detach-disk --domain $VM_NAME $DISK_NAME --persistent --config
 	virsh detach-disk --domain $VM_NAME $DISK_NAME --config
 	virsh domblklist $VM_NAME
 	echo "Done removing use: IMAGE_NAME=/var/lib/libvirt/images/minix-boot-1.qcow2 to dump content using i.e. hexdump"
@@ -32,6 +31,10 @@ if [[ $P1 == "rm" ]] ; then
 	# Get starting sector of primary partition.
 
 	SECTOR_START_PP=`fdisk -l $IMAGE_NAME | grep Linux | head -1 | tr -s ' ' | cut -d ' ' -f3`
+	if [[ -z $SECTOR_START_PP ]] ; then
+		echo "Unable to get starting sector. "
+		exit 1
+	fi
 	BYTES_PER_SECTOR=512
 	OFFSET_PP=$(($SECTOR_START_PP * $BYTES_PER_SECTOR))
 	echo "offset of primary partition: $OFFSET_PP"
