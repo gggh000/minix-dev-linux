@@ -45,3 +45,14 @@ echo "Convering raw image to vdi format compatible with virtualbox."
 qemu-img convert -f raw -O vdi $TARGET_DISK $TARGET_DISK_VDI
 ls -l $TARGET_DISK_LOC
 
+# -----------------
+
+#build mbr boot...
+
+MBR_BOOT1_A=mbrboot1-a
+MBR_BOOT1_C=mbrboot1-c
+nasm -felf64 -F dwarf $MBR_BOOT1_A.asm
+gcc -c $MBR_BOOT1_C.c
+ld $MBR_BOOT1_A.o $MBR_BOOT1_C.o -o boot.bin
+
+
