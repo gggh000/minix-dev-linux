@@ -3,53 +3,27 @@ mbr boot.bin search and load development:
 1. 
 
 sda1.bin's inode table starts at 323*4096
-hexdump -C sda1.bin -n 4096 -s $((323*4096)) = 1323008 = 0x143000
+Since first inode is 11 and stat /sda/boot.bin output shows inode 12, inode of /sda/boot.bin
+is at 00143100 + inode No. * inode size. 
+No. of blocks in there also match that of stat's output: 8 blocks.
 
-00143000  00 00 00 00 00 00 00 00  79 70 e1 5f 79 70 e1 5f  |........yp._yp._|
-00143010  79 70 e1 5f 00 00 00 00  00 00 00 00 00 00 00 00  |yp._............|
-00143020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+hexdump -C sda1.bin -n 4096 -s $((323*4096 + 12 * 256)) = 1323008 = 0x143000 
+where 323 is start of inode table.
+4096 is block size
+12 is inode number used by boot.bin
+256 inode size
+
+root@ubuntu-desktop:/git.co/minix-dev-linux/test-code# hexdump -C sda1.bin -n 4096 -s $((323*4096+11*256))
+00143b00  a4 81 00 00 21 00 00 00  72 2e e4 5f 92 19 e4 5f  |....!...r.._..._|
+00143b10  92 19 e4 5f 00 00 00 00  00 00 01 00 08 00 00 00  |..._............|
+00143b20  00 00 00 00 01 00 00 00  05 04 00 00 00 00 00 00  |................|
+00143b30  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 *
-00143100  ed 41 00 00 00 10 00 00  50 0e e4 5f ed ff e3 5f  |.A......P.._..._|
-00143110  ed ff e3 5f 00 00 00 00  00 00 03 00 08 00 00 00  |..._............|
-00143120  00 00 00 00 03 00 00 00  43 03 00 00 00 00 00 00  |........C.......|
-00143130  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-*
 
-2. Since first inode is 11 and stat /sda/boot.bin output shows inode 12, inode of /sda/boot.bin
-is at 00143100. No. of blocks in there also match that of stat's output: 8 blocks.
-
-However block information at 0x28 makes no sense:
-1st blk	:  343
-2nd blk	:  000?
-3rd blk	:  000?
-4-12	:  000?
-
-3. 
-Data content of block: 0x343 does not make much sense:
-root@ubuntu-desktop:/git.co/minix-dev-linux/test-code# hexdump -C sda1.bin -n 4096 -s $((0x343*4096))
-00343000  02 00 00 00 0c 00 01 02  2e 00 00 00 02 00 00 00  |................|
-00343010  0c 00 02 02 2e 2e 00 00  0b 00 00 00 14 00 0a 02  |................|
-00343020  6c 6f 73 74 2b 66 6f 75  6e 64 00 00 0c 00 00 00  |lost+found......|
-00343030  d4 0f 08 01 62 6f 6f 74  2e 62 69 6e 0d 00 00 00  |....boot.bin....|
-00343040  c4 0f 0d 01 2e 62 6f 6f  74 2e 62 69 6e 2e 73 77  |.....boot.bin.sw|
-00343050  70 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |p...............|
-00343060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-*
-00344000
-
-Since boot.bin data is:
-
-root@ubuntu-desktop:/git.co/minix-dev-linux/test-code# hexdump /sda/boot.bin -n 512
-0000000 380a 3738 3637 3536 3435 3334 3233 3132
-0000010 3831 3738 3637 3536 3435 3334 3233 3132
-*
-0000021
-
-Search of boot.bin for pattern: 
-
-# hexdump -C sda1.bin | grep 88776655
+From here the block No. is 0x0405 therefore
+oot@ubuntu-desktop:/git.co/minix-dev-linux/test-code# hexdump -C sda1.bin -n 512 -s $((0x405*4096))
 00405000  0a 38 38 37 37 36 36 35  35 34 34 33 33 32 32 31  |.887766554433221|
 00405010  31 38 38 37 37 36 36 35  35 34 34 33 33 32 32 31  |1887766554433221|
-
-offset : 405000 corresponds to block: 16464.
+00405020  31 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |1...............|
+00405030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 
