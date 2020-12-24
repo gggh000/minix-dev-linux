@@ -40,6 +40,7 @@ ok_1:
 	sub	si, si			; ds:si = 0x7e00.
 	add	esi, 0x7e00		; inode 10, copied to 7e00.
 	add	esi, 256 		; inode 11, offset into.
+	add	esi, 0x20		; adv. another 16 bytes onto inode 11. offset 8 should print block number.
 	mov	cx, 0x10		; one line 16 chars to print.
 loop1:
 	mov 	al, [esi]	        ; char to write
