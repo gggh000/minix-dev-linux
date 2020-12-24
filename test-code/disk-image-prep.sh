@@ -33,14 +33,17 @@
 
 #	Mount as /sda
 
+#	CONSTANTS and DEFINITIONS.
+
+TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
+
 #	Create boot.bin in the root directory of /sda.
 	
 dd if=/dev/zero of=/sda/boot.bin bs=4096 count=12
 
 #	extract /dev/sda1 volume from disk image. Could be useful for utilities. i.e. dumpe2fs.
 
-dd if=$IMAGE_NAME of=./sda1.bin bs=512 skip=2048 
-
+dd if=$TARGET_DISK_IMG of=./sda1.bin skip=1024 bs=1024
 
 
 

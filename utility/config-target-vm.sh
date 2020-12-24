@@ -1,22 +1,22 @@
 #	Use this script for two functions.
-#	./config-target-vm.sh add - will attach the IMAGE_NAME disk to kvm guest VM and start booting from this drive.
+#	./config-target-vm.sh add - will attach the DISK_TARGET_IMG disk to kvm guest VM and start booting from this drive.
 #	Prior to attaching, dismount from /sda will take place.
 
-#	./config-target-vm.sh rm - will shutdown the kvm guest VM and detach the IMAGE_NAME and mount on host file system
+#	./config-target-vm.sh rm - will shutdown the kvm guest VM and detach the DISK_TARGET_IMG and mount on host file system
 #	under mount point /sda.
 
 #	when mounting under host file system, the first partition offset is found by using fdisk and offset into first partition
-#	to mount. The IMAGE_NAME assumes there is only one primary, first partition which taking entire IMAGE_NAME size
+#	to mount. The DISK_TARGET_IMG assumes there is only one primary, first partition which taking entire DISK_TARGET_IMG size
 #	and formatted as an ext2. 
 
 P1=$1
 VM_NAME=minix-boot
-IMAGE_NAME=/var/lib/libvirt/images/minix-boot-1.qcow2
+DISK_TARGET_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
 DISK_NAME=hdc
 MOUNT_POINT_PP=/sda
 
-if [[ ! -f $IMAGE_NAME ]] ; then
-	echo "Error. Can not find $IMAGE_NAME. File does not exist. "
+if [[ ! -f $DISK_TARGET_IMG ]] ; then
+	echo "Error. Can not find $DISK_TARGET_IMG. File does not exist. "
 	exit 1
 fi
 
@@ -26,11 +26,11 @@ if [[ $P1 == "rm" ]] ; then
 	virsh list
 	virsh detach-disk --domain $VM_NAME $DISK_NAME --config
 	virsh domblklist $VM_NAME
-	echo "Done removing use: IMAGE_NAME=/var/lib/libvirt/images/minix-boot-1.qcow2 to dump content using i.e. hexdump"
+	echo "Done removing use: DISK_TARGET_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2 to dump content using i.e. hexdump"
 
 	# Get starting sector of primary partition.
 
-	SECTOR_START_PP=`fdisk -l $IMAGE_NAME | grep Linux | head -1 | tr -s ' ' | cut -d ' ' -f3`
+	SECTOR_START_PP=`fdisk -l $DISK_TARGET_IMG | grep Linux | head -1 | tr -s ' ' | cut -d ' ' -f3`
 	if [[ -z $SECTOR_START_PP ]] ; then
 		echo "Unable to get starting sector. "
 		exit 1
@@ -39,8 +39,8 @@ if [[ $P1 == "rm" ]] ; then
 	OFFSET_PP=$(($SECTOR_START_PP * $BYTES_PER_SECTOR))
 	echo "offset of primary partition: $OFFSET_PP"
 	mkdir $MOUNT_POINT_PP -p
-	echo mount $IMAGE_NAME -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
-	mount $IMAGE_NAME -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
+	echo mount $DISK_TARGET_IMG -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
+	mount $DISK_TARGET_IMG -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
 	echo "Content of primary partition..."
 	ls -l  $MOUNT_POINT_PP
 
@@ -56,7 +56,7 @@ elif [[ $P1 == "add" ]] ; then
 	#	echo "umount of $MOUNT_POINT_PP is successful."
 	#fi
 	echo "attaching second hdd"
-	virsh attach-disk --domain $VM_NAME --source $IMAGE_NAME --target $DISK_NAME  --config  --cache none --persistent
+	virsh attach-disk --domain $VM_NAME --source $DISK_TARGET_IMG --target $DISK_NAME  --config  --cache none --persistent
 	virsh domblklist $VM_NAME
 	virsh start $VM_NAME
 	virsh list

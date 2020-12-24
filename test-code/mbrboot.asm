@@ -24,7 +24,6 @@ loop0:
 	mov	ds, si	
 	lea	si, [DAP_text]
 	int 	0x13			; issue the command.
-	jmp	$
 	jnc	ok_1
 	mov	al, '!'
 	mov	ah, 0x9	
