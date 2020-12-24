@@ -13,8 +13,8 @@ TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
 
 TARGET_DISK_IMG_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 
-echo "Convering vdi image to raw format..."
-#qemu-img convert -f vdi -O raw $TARGET_DISK_IMG_VDI $TARGET_DISK_IMG
+# 	echo "Convering vdi image to raw format..."
+#	qemu-img convert -f vdi -O raw $TARGET_DISK_IMG_VDI $TARGET_DISK_IMG
 
 if [[ $CONFIG_BUILD_OUTPUT_TYPE -eq $CONFIG_BUID_32 ]] ; then
 	echo "Building 32  bit binary..."

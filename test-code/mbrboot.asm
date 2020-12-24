@@ -13,7 +13,10 @@ loop0:
 	mov 	al, 'F'                 ; char 2 display.
         int     0x10
 
-;	copy to 0:8000 the first sector.
+; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 12 * 256 onto 0x7e00-0x800 (up to 512 bytes)
+;	from offset 0x18, check and load blocks. onto 0x8000-0x14000, or up to 12 blocks (12 * 4096).
+
+;	copy to 0:7e000 the first sector.
 
 	mov	ah, 0x42		; bios 13h extended read service code.
 	mov	dl, 0x80		; drive No.
@@ -22,7 +25,7 @@ loop0:
 
 	mov	si,  0x7c0
 	mov	ds, si	
-	lea	si, [DAP_text]
+	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
 	int 	0x13			; issue the command.
 	jnc	ok_1
 	mov	al, '!'
@@ -30,13 +33,13 @@ loop0:
 	int 	0x10
 ok_1:
 
-;	print few lines from 7c00.
+;	print few lines from 0000:7e00
 
 	mov	ax, 0x000
 	mov	ds, ax
 	sub	si, si			; ds:si = 0x7c00.
-	add	esi, 0x8000
-	mov	cx, 0x10		; one line 16 chars to print.
+	add	esi, 0x7e00
+	mov	cx, 0x20		; one line 16 chars to print.
 loop1:
 	mov 	al, [esi]	        ; char to write
         mov     ah, 0x0e                ; int 10h, write char.
@@ -69,24 +72,7 @@ loop1_2a:
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
-
-;	 Dir entry for boot.bin starts at 0044302c. 
-;	inode is 0xb(11d)
-
-;  	Group 0: (Blocks 0-32767)
-;  	Primary superblock at 0, Group descriptors at 1-1
-; 	Reserved GDT blocks at 2-320
-;  	Block bitmap at 321 (+321)
-;  	Inode bitmap at 322 (+322)
-;  	Inode table at 323-834 (+323)
-;  	31926 free blocks, 8180 free inodes, 2 directories
-;  	Free blocks: 841-1023, 1025-32767
-;  	Free inodes: 13-8192
-
 	jmp	$
-	mov	ax, 0x8000
-	push 	ax
-	ret
 
 ;	DAP packet for bios int 13h (ah=0x42)
 	align	16
@@ -96,9 +82,9 @@ DAP_text:
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
 	dw	0x04			; No. of sectors to read.
-	dw	0x8000			; target segment.
+	dw	0x7e00			; target segment.
 	dw	0x0000			; target offset.
-	dd	0x02218 		; sector 0 lo?.
+	dd	0x121e 			; 2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)
 	dd	0x0			; sector 0 hi?.
 
         section   .data
