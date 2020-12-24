@@ -75,30 +75,47 @@ loop1_2a:
 
 ;	load data blocks onto 8000.
 
+	mov	cx, 12			; Initialize counter, load only max direct blocks which is 12 by ext2 standard.
+	sub	di, di			; [DI] = initialize counter, reverse of CX, rising counter.
+
+dataBlockLoadLoop:	
 	mov	si,  0x7e0
 	mov	ds, si	
-	mov	si, 0x28		; [DS:SI]offset into 1st data block number in inode.
+	mov	si, 0x28		; [DS:SI] = offset into 1st data block number in inode.
+	add	si, di			; [DS:SI] = walk to [di]'th data block in inode struct.
+	shl	di, 2			; [DI] = multiple counter by 4 since, 4 bytes a time when walking through block No. in inode.
 	mov	ax, [si]		; [AX]= should have first block No.
 	sub	si, 0x28		; offset onto inode in 7e0.
-	mov	cx, 12			; load only max direct blocks which is 12 by ext2 standard.
-	
+
 	mov	si, 0x7c0
 	lea	si, [DAP_text]		; [DS:SI]=7e0:0 loaded inode.
 	add	si, 2			; [DS:SI]=pointer to No. of sectors in dap packet.
 	mov	[si], 8			; load 8 sectors or one block at a time.
+
+;	Update  dap field's destination address. This is incremented by DI(counter) * 4096(blocksize) + 8000.
+
 	add	si, 2			; [DS:SI]=pointer to target offset of seg:off combination
-	mov	[si], 0x8000		;[ set target offset to 0x8000.
+	push	di			; save counter block based.
+	shr	di, 2			; [DI] = counter is 1 increment at a time.
+	shl	di, 12			; [DI] = multiply counter by block size.
+	add	di, 0x8000		; [DI] = offset by target address.
+	mov	[si], di		; set target offset to 0x8000 + block No * blockSize in [DI]
+	pop	di			; [DI] = restore, DI, block offset based counter within inode.
+
+;	ax=block NO. to load. Translate  it into sector.
+
 	add	si, 4			; offset into sector number to load from field within dap packet.
 	add	ax, 0x800		; [AX] = block No. from beginning of disk by advancing 2048 blocks.
 	shl	ax, 12			; [AX] = byte offset convert from block No.
 	shr	ax, 9			; [AX] = sector No. convert from byte offset.
 	mov	[si], ax		; update sector.
+
 	
 	mov	si,  0x7c0
 	mov	ds, si	
 	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
 	int 	0x13			; issue the command.
-
+	loopne	dataBlockLoadLoop
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
