@@ -13,7 +13,7 @@ loop0:
 	mov 	al, 'F'                 ; char 2 display.
         int     0x10
 
-; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 12 * 256 onto 0x7e00-0x800 (up to 512 bytes)
+; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 11 * 256 onto 0x7e00-0x800 (up to 512 bytes)
 ;	from offset 0x18, check and load blocks. onto 0x8000-0x14000, or up to 12 blocks (12 * 4096).
 
 ;	copy to 0:7e000 the first sector.
@@ -37,9 +37,10 @@ ok_1:
 
 	mov	ax, 0x000
 	mov	ds, ax
-	sub	si, si			; ds:si = 0x7c00.
-	add	esi, 0x7e00
-	mov	cx, 0x20		; one line 16 chars to print.
+	sub	si, si			; ds:si = 0x7e00.
+	add	esi, 0x7e00		; inode 10, copied to 7e00.
+	add	esi, 256 		; inode 11, offset into.
+	mov	cx, 0x10		; one line 16 chars to print.
 loop1:
 	mov 	al, [esi]	        ; char to write
         mov     ah, 0x0e                ; int 10h, write char.
@@ -81,10 +82,11 @@ loop1_2a:
 DAP_text:
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
-	dw	0x04			; No. of sectors to read.
+	dw	0x01			; No. of sectors to read.
 	dw	0x7e00			; target segment.
 	dw	0x0000			; target offset.
-	dd	0x121e 			; 2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)
+	; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)) / 512 (sector size)
+	dd	0x121d 			; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)
 	dd	0x0			; sector 0 hi?.
 
         section   .data
