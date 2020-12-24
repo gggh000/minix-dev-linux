@@ -15,7 +15,9 @@ loop0:
 
 ; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 11 * 256 onto 0x7e00-0x800 (up to 512 bytes)
 ;	from offset 0x18, check and load blocks. onto 0x8000-0x14000, or up to 12 blocks (12 * 4096).
-
+;	as of 12.24.2020:
+;	stat boot.bin block shows: (0-3): 1024-1027; (4-5): 1536-1537, (6-8): 2048-2050, (9): 1028
+;	
 ;	copy to 0:7e000 the first sector.
 
 	mov	ah, 0x42		; bios 13h extended read service code.
@@ -71,6 +73,32 @@ loop1_2a:
 	inc	esi
 	loopne 	loop1
 
+;	load data blocks onto 8000.
+
+	mov	si,  0x7e0
+	mov	ds, si	
+	mov	si, 0x28		; [DS:SI]offset into 1st data block number in inode.
+	mov	ax, [si]		; [AX]= should have first block No.
+	sub	si, 0x28		; offset onto inode in 7e0.
+	mov	cx, 12			; load only max direct blocks which is 12 by ext2 standard.
+	
+	mov	si, 0x7c0
+	lea	si, [DAP_text]		; [DS:SI]=7e0:0 loaded inode.
+	add	si, 2			; [DS:SI]=pointer to No. of sectors in dap packet.
+	mov	[si], 8			; load 8 sectors or one block at a time.
+	add	si, 2			; [DS:SI]=pointer to target offset of seg:off combination
+	mov	[si], 0x8000		;[ set target offset to 0x8000.
+	add	si, 4			; offset into sector number to load from field within dap packet.
+	add	ax, 0x800		; [AX] = block No. from beginning of disk by advancing 2048 blocks.
+	shl	ax, 12			; [AX] = byte offset convert from block No.
+	shr	ax, 9			; [AX] = sector No. convert from byte offset.
+	mov	[si], ax		; update sector.
+	
+	mov	si,  0x7c0
+	mov	ds, si	
+	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
+	int 	0x13			; issue the command.
+
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
@@ -83,12 +111,19 @@ loop1_2a:
 DAP_text:
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
+;	offset 2. When loading blocks, it should be 8. (blk size / sector size) = 4096 / 512.
 	dw	0x01			; No. of sectors to read.
+;	offset 4.
 	dw	0x7e00			; target segment.
 	dw	0x0000			; target offset.
+;	offset 8.
 	; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)) / 512 (sector size)
 	dd	0x121d 			; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)
 	dd	0x0			; sector 0 hi?.
+
+
+	db	'DAP.text'
+	align	16
 
         section   .data
 ;	DAP packet for bios int 13h (ah=0x42)
