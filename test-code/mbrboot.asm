@@ -130,6 +130,7 @@ dataBlockLoadLoop:
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
 	jmp	$
+	jmp	0x800:0
 
 ;	DAP packet for bios int 13h (ah=0x42)
 	align	16

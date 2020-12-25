@@ -5,6 +5,8 @@ CONFIG_BUILD_64=2
 CONFIG_BUILD_BIN=3
 CONFIG_BUILD_OUTPUT_TYPE=$CONFIG_BUILD_BIN
 MBR_BOOT_ASM=mbrboot
+BOOT_BIN_ELF=boot.elf.bin
+BOOT_BIN=boot.bin
 
 TARGET_DISK_IMG_LOC=/var/lib/libvirt/images/
 TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
@@ -35,8 +37,8 @@ fi
 
 #	Disabling following code for now.
 
-FLAG=0
-if [[ $FLAG -eq - ]] ; then
+FLAG0=0
+if [[ $FLAG0 -eq - ]] ; then
 	dd if=$TARGET_DISK_IMG of=ptable.bin skip=446 bs=1 count=$((512-446))
 	echo "created ptable bin:"
 	hexdump -C ptable.bin 
@@ -82,9 +84,22 @@ mount $TARGET_DISK_IMG -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
 echo "Content of primary partition..."
 ls -l  $MOUNT_POINT_PP
 
-#build boot.bin...
-#BOOT_BIN_1_A=boot_bin_1-a
-#BOOT_BIN_1_C=boot_bin_1-c
-#nasm -felf64 -F dwarf $BOOT_BIN_1_A.asm
-#gcc -c $BOOT_BIN_1_C.c
-#ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o boot.bin
+echo "build boot.bin..."
+BOOT_BIN_1_A=boot_bin_1-a
+BOOT_BIN_1_C=boot_bin_1-c
+nasm -felf64 -F dwarf $BOOT_BIN_1_A.asm
+gcc -c $BOOT_BIN_1_C.c
+ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o $BOOT_BIN_ELF
+
+#	Not quite working. needs to parse i.e. 0x04000b0. to only keep b0. For now, use hardcoded code value of b0=176.
+
+PROG_ENTRY=`readelf -l boot.bin  | grep 'Entry point' | tr -s ' ' | cut -d ' ' -f3`
+PROG_ENTRY=176
+if [[ -z $PROG_ENTRY ]] ; then
+	echo "Error. Unable to find program entry for $BOOT_BIN_ELF"
+else
+	echo "Program entry for $BOOT_BIN_ELF: $PROG_ENTRY..."
+fi
+dd if=$BOOT_BIN_ELF of=$BOOT_BIN bs=1 skip=$PROG_ENTRY
+cp boot.bin /sda/boot.bin
+

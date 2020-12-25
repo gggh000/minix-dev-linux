@@ -4,6 +4,7 @@
 #- exact clone (to be used in minix-boot-clone-ubuntu-boot
 
 TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
+TARGET_DISK_IMG_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 echo "Creating sda1.bin..."
 dd if=$TARGET_DISK_IMG of=sda1.bin skip=1024 bs=1024
 echo "Converting to vdi image..."
