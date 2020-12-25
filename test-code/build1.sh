@@ -7,6 +7,7 @@ CONFIG_BUILD_OUTPUT_TYPE=$CONFIG_BUILD_BIN
 MBR_BOOT_ASM=mbrboot
 BOOT_BIN_ELF=boot.elf.bin
 BOOT_BIN=boot.bin
+BOOT_BIN_SIZE_MAX=32768
 
 TARGET_DISK_IMG_LOC=/var/lib/libvirt/images/
 TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
@@ -102,4 +103,17 @@ else
 fi
 dd if=$BOOT_BIN_ELF of=$BOOT_BIN bs=1 skip=$PROG_ENTRY
 cp boot.bin /sda/boot.bin
+
+BOOT_BIN_SIZE=`ls -l boot.bin | cut -d ' ' -f 5`
+echo "$BOOT_BIN size: $BOOT_BIN_SIZE..."
+
+if [[ $BOOT_BIN_SIZE -gt $BOOT_BIN_SIZE_MAX ]] ; then
+	echo "Error. $BOOT_BIN size is greater than current max: $BOOT_BIN_SIZE_MAX..."
+	echo "I am deleting back the $BOOT_BIN to prevent silent error during program execution."
+	echo "Consider reducing the size as much as possible to fit."
+	rm -rf $BOOT_BIN
+	rm -rf /sda/$BOOT_BIN.
+else
+	echo "OK..."
+fi
 
