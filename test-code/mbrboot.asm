@@ -90,7 +90,7 @@ dataBlockLoadLoop:
 	mov	si, 0x7c0
 	lea	si, [DAP_text]		; [DS:SI]=7e0:0 loaded inode.
 	add	si, 2			; [DS:SI]=pointer to No. of sectors in dap packet.
-	mov	[si], 8			; load 8 sectors or one block at a time.
+	mov	[si], word 8		; load 8 sectors or one block at a time.
 
 ;	Update  dap field's destination address. This is incremented by DI(counter) * 4096(blocksize) + 8000.
 
@@ -110,12 +110,13 @@ dataBlockLoadLoop:
 	shr	ax, 9			; [AX] = sector No. convert from byte offset.
 	mov	[si], ax		; update sector.
 
-	
 	mov	si,  0x7c0
 	mov	ds, si	
 	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
 	int 	0x13			; issue the command.
 	loopne	dataBlockLoadLoop
+	jmp	$
+
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
@@ -137,7 +138,6 @@ DAP_text:
 	; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)) / 512 (sector size)
 	dd	0x121d 			; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)
 	dd	0x0			; sector 0 hi?.
-
 
 	db	'DAP.text'
 	align	16
