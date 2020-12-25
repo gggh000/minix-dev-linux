@@ -76,7 +76,7 @@ loop1_2a:
 ;	load data blocks onto 8000.
 
 
-	mov 	cx, 12 ; Initialize counter, load only max direct blocks which is 12 by ext2 standard.
+	mov 	cx, 8 			; Initialize counter, load only max direct blocks which is 12 by ext2 standard.
 	sub	di, di			; [DI] = initialize counter, reverse of CX, rising counter.
 
 dataBlockLoadLoop:	
