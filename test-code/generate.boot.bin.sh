@@ -18,7 +18,7 @@
 
 BOOT_BIN=/sda/boot.bin
 EXT_BLOCK_SIZE=4096
-
+FILE_SIZE_BYTES=4096 * 12
 ret=`mount | grep sda`
 
 if [[ -z $ret ]] ; then 
@@ -27,7 +27,7 @@ if [[ -z $ret ]] ; then
 fi
 
 echo -ne "" > $BOOT_BIN
-for i in {0..40960}; do
+for i in {0..49149}; do
 	
 	if [[ $(($i % $EXT_BLOCK_SIZE)) -eq 0 ]] ; then
 		echo -ne $(($i / $EXT_BLOCK_SIZE)) >> $BOOT_BIN

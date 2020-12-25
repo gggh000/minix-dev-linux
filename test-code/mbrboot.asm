@@ -75,6 +75,8 @@ loop1_2a:
 
 ;	load data blocks onto 8000.
 
+;	File size is cx=12*4096 however, for some reason, after block0:7 is copied, 8th block ends up in cs=f000. 
+;	Some sort of exception or fatal error. Will keep the file size to 8*4096 = 32K.
 
 	mov 	cx, 8 			; Initialize counter, load only max direct blocks which is 12 by ext2 standard.
 	sub	di, di			; [DI] = initialize counter, reverse of CX, rising counter.
@@ -122,7 +124,6 @@ dataBlockLoadLoop:
 	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
 
 	int 	0x13			; issue the command.
-	jmp	$
 	loopne	dataBlockLoadLoop
 
         mov     ah, 0x0e                ; int 10h, write char.
