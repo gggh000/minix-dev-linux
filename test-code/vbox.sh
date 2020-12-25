@@ -3,10 +3,11 @@ if [[ -z `lsmod | grep kvm` ]] ; then
 	echo "kvm is already unloaded."
 else
 	echo "unloading kvm module..."
-	rmmod kvm_intel
-	rmmod kvm
+	ret1=`rmmod kvm_intel`
+	ret2=`rmmod kvm`
+	echo "ret1/ret2: $ret1/$ret2"
 
-	if [[ $? -ne 0 ]] ; then echo "Failure to rmmod kvm and/or kvm_intel..., giving up." exit 1 ; fi
+	if [[ $ret1 -ne 0 ]] || [[ $ret2 -ne 0 ]] ; then echo "Failure to rmmod kvm and/or kvm_intel..., giving up." exit 1 ; fi
 fi
 
 unset SESSION_MANAGER
