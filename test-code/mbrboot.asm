@@ -84,12 +84,12 @@ dataBlockLoadLoop:
 	mov	ds, si	
 	mov	si, 0x100		; [DS:SI] 11th inode.
 	add	si, 0x28		; [DS:SI] = offset into 1st data block number in inode.
-	add	si, di			; [DS:SI] = walk to [di]'th data block in inode struct.
 	shl	di, 2			; [DI] = multiple counter by 4 since, 4 bytes a time when walking through block No. in inode.
+	add	si, di			; [DS:SI] = walk to [di]'th data block in inode struct.
 	mov	ax, [si]		; [AX]= should have first block No.
 	and	eax, 0xffff		; [EAX] = first Block No.
-	sub	si, 0x28		; offset onto inode in 7e0.
-
+	sub	si, 0x28		; offset onto inode in 7e0. ?? necessary??
+	shr	di, 2			; [DI]
 	mov	si, 0x7c0
 	mov	ds, si			
 	lea	si, [DAP_text]		; [DS:SI]=pointer to DAP.
@@ -100,7 +100,6 @@ dataBlockLoadLoop:
 
 	add	si, 2			; [DS:SI]=pointer to target offset of seg:off combination
 	push	di			; save counter block based.
-	shr	di, 2			; [DI] = counter is 1 increment at a time.
 	shl	di, 12			; [DI] = multiply counter by block size.
 	add	di, 0x8000		; [DI] = offset by target address.
 	mov	[si], di		; set target offset to 0x8000 + block No * blockSize in [DI]
@@ -117,15 +116,14 @@ dataBlockLoadLoop:
 	mov	ah, 0x42		; bios 13h extended read service code.
 	mov	dl, 0x80		; drive No.
 
+	inc	di			; increment counter.
 	mov	si,  0x7c0
 	mov	ds, si	
 	lea	si, [DAP_text]		; [DS:SI]=7c0:DAP_TEXT
 
 	int 	0x13			; issue the command.
 	jmp	$
-
 	loopne	dataBlockLoadLoop
-	jmp	$
 
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
