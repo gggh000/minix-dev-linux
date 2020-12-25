@@ -12,7 +12,7 @@
 P1=$1
 VM_NAME=minix-boot
 TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
-DISK_NAME=hdc
+QEMU_VM_DISK_NAME=hdc
 MOUNT_POINT_PP=/sda
 modprobe kvm_intel  ; modprobe kvm
 
@@ -25,7 +25,7 @@ if [[ $P1 == "rm" ]] ; then
 	echo "removing second hdd"
 	virsh destroy $VM_NAME
 	virsh list
-	virsh detach-disk --domain $VM_NAME $DISK_NAME --config
+	virsh detach-disk --domain $VM_NAME $QEMU_VM_DISK_NAME --config
 	virsh domblklist $VM_NAME
 	echo "Done removing use: TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2 to dump content using i.e. hexdump"
 
@@ -57,7 +57,7 @@ elif [[ $P1 == "add" ]] ; then
 	#	echo "umount of $MOUNT_POINT_PP is successful."
 	#fi
 	echo "attaching second hdd"
-	virsh attach-disk --domain $VM_NAME --source $TARGET_DISK_IMG --target $DISK_NAME  --config  --cache none --persistent
+	virsh attach-disk --domain $VM_NAME --source $TARGET_DISK_IMG --target $QEMU_VM_DISK_NAME  --config  --cache none --persistent
 	virsh domblklist $VM_NAME
 	virsh start $VM_NAME
 	virsh list

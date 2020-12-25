@@ -63,11 +63,28 @@ qemu-img convert -f raw -O vdi $TARGET_DISK_IMG $TARGET_DISK_IMG_VDI
 ls -l $TARGET_DISK_IMG_LOC
 
 # -----------------
-#build mbr boot...
-#MBR_BOOT1_A=mbrboot1-a
-#MBR_BOOT1_C=mbrboot1-c
-#nasm -felf64 -F dwarf $MBR_BOOT1_A.asm
-#gcc -c $MBR_BOOT1_C.c
-#ld $MBR_BOOT1_A.o $MBR_BOOT1_C.o -o boot.bin
 
+source api.sh
 
+# Get starting sector of primary partition.
+
+SECTOR_START_PP=`fdisk -l $TARGET_DISK_IMG | grep Linux | head -1 | tr -s ' ' | cut -d ' ' -f3`
+if [[ -z $SECTOR_START_PP ]] ; then
+        echo "Unable to get starting sector. "
+        exit 1
+fi
+BYTES_PER_SECTOR=512
+OFFSET_PP=$(($SECTOR_START_PP * $BYTES_PER_SECTOR))
+echo "offset of primary partition: $OFFSET_PP"
+mkdir $MOUNT_POINT_PP -p
+echo mount $TARGET_DISK_IMG -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
+mount $TARGET_DISK_IMG -o loop,offset=$OFFSET_PP $MOUNT_POINT_PP
+echo "Content of primary partition..."
+ls -l  $MOUNT_POINT_PP
+
+#build boot.bin...
+#BOOT_BIN_1_A=boot_bin_1-a
+#BOOT_BIN_1_C=boot_bin_1-c
+#nasm -felf64 -F dwarf $BOOT_BIN_1_A.asm
+#gcc -c $BOOT_BIN_1_C.c
+#ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o boot.bin
