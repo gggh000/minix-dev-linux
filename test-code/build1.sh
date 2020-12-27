@@ -94,7 +94,7 @@ ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o $BOOT_BIN_ELF
 
 #	Not quite working. needs to parse i.e. 0x04000b0. to only keep b0. For now, use hardcoded code value of b0=176.
 
-PROG_ENTRY=`readelf -l boot.bin  | grep 'Entry point' | tr -s ' ' | cut -d ' ' -f3`
+#PROG_ENTRY=`readelf -l boot.bin  | grep 'Entry point' | tr -s ' ' | cut -d ' ' -f3`
 PROG_ENTRY=176
 if [[ -z $PROG_ENTRY ]] ; then
 	echo "Error. Unable to find program entry for $BOOT_BIN_ELF"

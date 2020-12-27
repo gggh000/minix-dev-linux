@@ -10,7 +10,7 @@ _start:
 loop0:
 ;	write 'A' 16 times at current cursor.
         mov     ah, 0x0e                ; int 10h, write char.
-	mov 	al, 'F'                 ; char 2 display.
+	mov 	al, 'G'                 ; char 2 display.
         int     0x10
 
 ; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 11 * 256 onto 0x7e00-0x800 (up to 512 bytes)
@@ -129,7 +129,6 @@ dataBlockLoadLoop:
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, '1'                 ; char 2 display.
         int     0x10
-	jmp	$
 	jmp	0x800:0
 
 ;	DAP packet for bios int 13h (ah=0x42)
