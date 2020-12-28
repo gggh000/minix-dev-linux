@@ -1,34 +1,23 @@
+/*
+ * A small program that illustrates how to call the maxofthree function we wrote in
+ * assembly language.
+ */
+
 //#include <stdio.h>
-extern int putchar1(char ch);
-int functionC() {
-    printf("in functionC...");
-    int a = 0xbeef;
-    return a;
-}
+//#include <inttypes.h>
 
-int functionC2int(int p1, int p2) {
-    int c;
-    c =  p1 * 2;
-    return c;
-}
+long int maxofthree(long int, long int, long int);
 
-int functionC2long(long int p1, long int p2) {
-    long int c;
-    c =  p1 * 2;
-    return c;
-}
-
-void printf(char * pStr) {
-	int i;
-//	int counter = 0;
-	while (pStr[i] != 0) {
-		putchar1(pStr[i]);
-/*		counter ++;
-		if (counter > 100) {
-			return 1;
-		}
+int main() {
+    maxofthree(1, -4, -7);
+/*    printf("%ld\n", maxofthree(1, -4, -7));
+    printf("%ld\n", maxofthree(2, -6, 1));
+    printf("%ld\n", maxofthree(2, 3, 1));
+    printf("%ld\n", maxofthree(-2, 4, 3));
+    printf("%ld\n", maxofthree(2, -6, 5));
+    printf("%ld\n", maxofthree(2, 4, 6));
 */
-	}
-
-	return 0;
+    return 0;
 }
+
+
