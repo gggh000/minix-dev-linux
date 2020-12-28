@@ -16,6 +16,11 @@ TARGET_DISK_IMG=/var/lib/libvirt/images/minix-boot-1.qcow2
 
 TARGET_DISK_IMG_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 
+# artifacts used for building boot.bin:
+
+BOOT_BIN_1_A=boot_bin_1-a
+BOOT_BIN_1_C=boot_bin_1-c
+	
 # 	echo "Convering vdi image to raw format..."
 #	qemu-img convert -f vdi -O raw $TARGET_DISK_IMG_VDI $TARGET_DISK_IMG
 
@@ -86,15 +91,16 @@ echo "Content of primary partition..."
 ls -l  $MOUNT_POINT_PP
 
 echo "build boot.bin..."
-BOOT_BIN_1_A=boot_bin_1-a
-BOOT_BIN_1_C=boot_bin_1-c
 nasm -felf64 -F dwarf $BOOT_BIN_1_A.asm
-gcc -c $BOOT_BIN_1_C.c
-ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o $BOOT_BIN_ELF
+gcc $BOOT_BIN_1_C.c $BOOT_BIN_1_A.o -o $BOOT_BIN_ELF
+#ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o $BOOT_BIN_ELF
 
 #	Not quite working. needs to parse i.e. 0x04000b0. to only keep b0. For now, use hardcoded code value of b0=176.
 
 #PROG_ENTRY=`readelf -l boot.bin  | grep 'Entry point' | tr -s ' ' | cut -d ' ' -f3`
+MAIN_ENTRY=`objdump -D $BOOT_BIN_ELF | grep "\<main\>"  | grep -v "\#" | cut -d ' ' -f1`
+echo "MAIN_ENTRY: $MAIN_ENTRY"
+exit 0 
 PROG_ENTRY=176
 if [[ -z $PROG_ENTRY ]] ; then
 	echo "Error. Unable to find program entry for $BOOT_BIN_ELF"

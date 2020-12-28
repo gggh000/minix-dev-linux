@@ -1,4 +1,4 @@
-mbr boot.bin search and load development:
+0mbr boot.bin search and load development:
 
 1. 
 
@@ -27,3 +27,49 @@ oot@ubuntu-desktop:/git.co/minix-dev-linux/test-code# hexdump -C sda1.bin -n 512
 00405020  31 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |1...............|
 00405030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 
+maxofthree analysis:
+
+maxofthree analysis
+(https://cs.lmu.edu/~ray/notes/nasmtutorial/ section: Mixing C and Assembly Language)
+
+a.out: 
+1. program entry 0x4f0 and...from there is call main at 5f0
+00000000000004f0 <_start>:
+...
+ 50d:   48 8d 3d e6 00 00 00    lea    0xe6(%rip),%rdi        # 5fa <main>
+ 514:   ff 15 c6 0a 20 00       callq  *0x200ac6(%rip)        # 200fe0 <__libc_start_main@GLIBC_2.2.5>
+...
+
+2. main code appears to start at 5fa:
+00000000000005fa <main>:
+ 5fa:   55                      push   %rbp
+ 5fb:   48 89 e5                mov    %rsp,%rbp
+ 5fe:   48 c7 c2 f9 ff ff ff    mov    $0xfffffffffffffff9,%rdx
+ 605:   48 c7 c6 fc ff ff ff    mov    $0xfffffffffffffffc,%rsi
+...
+
+3. we can determine 4f0 program entry from elf header using readelf -l utility, but 
+we need to get 5f0 and jump directly from 7c00 by placing 5f0 offset at 800:0.
+
+
+root@ixt-rack-39:/git.co/minix-dev-linux/test-code# objdump -D maxofthree.o
+
+maxofthree.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <maxofthree>:
+   0:   48 89 f8                mov    %rdi,%rax
+   3:   48 39 f0                cmp    %rsi,%rax
+   6:   48 0f 4c c6             cmovl  %rsi,%rax
+   a:   48 39 d0                cmp    %rdx,%rax
+   d:   48 0f 4c c2             cmovl  %rdx,%rax
+  11:   c3                      retq
+
+
+root@ixt-rack-39:/git.co/minix-dev-linux/test-code# hexdump -C a1.out | grep "48 89 f8"
+
+00000130  48 89 f8 48 39 f0 48 0f  4c c6 48 39 d0 48 0f 4c  |H..H9.H.L.H9.H.L|
+
+b
