@@ -8,9 +8,9 @@ extern      functionC2long
             section   .text
 _start1:     
 main:
-	sub	ax, ax
+	sub	cx, cx
 	mov	ds, ax
-        mov     al, '@'
+        mov     al, '#'
         mov     ah, 0xe
         int     0x10
 	jmp	$

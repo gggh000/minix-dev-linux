@@ -20,13 +20,15 @@ int functionC2long(long int p1, long int p2) {
 
 void printf(char * pStr) {
 	int i;
-	int counter = 0;
+//	int counter = 0;
 	while (pStr[i] != 0) {
 		putchar1(pStr[i]);
-		counter ++;
+/*		counter ++;
 		if (counter > 100) {
 			return 1;
 		}
+*/
 	}
+
 	return 0;
 }
