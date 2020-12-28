@@ -20,6 +20,10 @@ TARGET_DISK_IMG_VDI=/var/lib/libvirt/images/minix-boot-1.vdi
 
 BOOT_BIN_1_A=boot_bin_1-a
 BOOT_BIN_1_C=boot_bin_1-c
+
+#       install library needed for 32-bit program:
+
+sudo apt-get install gcc-multilib -y
 	
 # 	echo "Convering vdi image to raw format..."
 #	qemu-img convert -f vdi -O raw $TARGET_DISK_IMG_VDI $TARGET_DISK_IMG
@@ -91,8 +95,8 @@ echo "Content of primary partition..."
 ls -l  $MOUNT_POINT_PP
 
 echo "build boot.bin..."
-nasm -felf64 -F dwarf $BOOT_BIN_1_A.asm
-gcc $BOOT_BIN_1_C.c $BOOT_BIN_1_A.o -o $BOOT_BIN_ELF
+nasm -felf32 -F dwarf $BOOT_BIN_1_A.asm
+gcc -m32 $BOOT_BIN_1_C.c $BOOT_BIN_1_A.o -o $BOOT_BIN_ELF
 #ld $BOOT_BIN_1_A.o $BOOT_BIN_1_C.o -o $BOOT_BIN_ELF
 
 #	Not quite working. needs to parse i.e. 0x04000b0. to only keep b0. For now, use hardcoded code value of b0=176.

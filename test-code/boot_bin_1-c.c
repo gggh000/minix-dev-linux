@@ -6,7 +6,7 @@
 //#include <stdio.h>
 //#include <inttypes.h>
 
-long int maxofthree(long int, long int, long int);
+int maxofthree(int, int, int);
 
 int main() {
     maxofthree(1, -4, -7);

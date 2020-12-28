@@ -15,10 +15,10 @@ maxofthree:
 	mov	al, '$'
 	int	0x10	
 	jmp 	$
-        mov     rax, rdi                ; result (rax) initially holds x
-        cmp     rax, rsi                ; is x less than y?
-        cmovl   rax, rsi                ; if so, set result to y
-        cmp     rax, rdx                ; is max(x,y) less than z?
-        cmovl   rax, rdx                ; if so, set result to z
+        mov     ax, di                ; result (rax) initially holds x
+        cmp     ax, si                ; is x less than y?
+        cmovl   ax, si                ; if so, set result to y
+        cmp     ax, dx                ; is max(x,y) less than z?
+        cmovl   ax, dx                ; if so, set result to z
 	
-        ret                             ; the max will be in rax
+        ret                           ; the max will be in rax
