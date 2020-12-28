@@ -97,17 +97,15 @@ gcc $BOOT_BIN_1_C.c $BOOT_BIN_1_A.o -o $BOOT_BIN_ELF
 
 #	Not quite working. needs to parse i.e. 0x04000b0. to only keep b0. For now, use hardcoded code value of b0=176.
 
-#PROG_ENTRY=`readelf -l boot.bin  | grep 'Entry point' | tr -s ' ' | cut -d ' ' -f3`
 MAIN_ENTRY=`objdump -D $BOOT_BIN_ELF | grep "\<main\>"  | grep -v "\#" | cut -d ' ' -f1`
-echo "MAIN_ENTRY: $MAIN_ENTRY"
-exit 0 
-PROG_ENTRY=176
-if [[ -z $PROG_ENTRY ]] ; then
+MAIN_ENTRY_DEC=`echo $((16#$MAIN_ENTRY))`
+echo "MAIN_ENTRY: $MAIN_ENTRY / $MAIN_ENTRY_DEC"
+if [[ -z $MAIN_ENTRY ]] ; then
 	echo "Error. Unable to find program entry for $BOOT_BIN_ELF"
 else
-	echo "Program entry for $BOOT_BIN_ELF: $PROG_ENTRY..."
+	echo "Program entry for $BOOT_BIN_ELF: $MAIN_ENTRY..."
 fi
-dd if=$BOOT_BIN_ELF of=$BOOT_BIN bs=1 skip=$PROG_ENTRY
+dd if=$BOOT_BIN_ELF of=$BOOT_BIN bs=1 skip=$MAIN_ENTRY_DEC
 cp boot.bin /sda/boot.bin
 
 BOOT_BIN_SIZE=`ls -l boot.bin | cut -d ' ' -f 5`
