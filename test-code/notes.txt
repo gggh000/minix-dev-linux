@@ -72,4 +72,13 @@ root@ixt-rack-39:/git.co/minix-dev-linux/test-code# hexdump -C a1.out | grep "48
 
 00000130  48 89 f8 48 39 f0 48 0f  4c c6 48 39 d0 48 0f 4c  |H..H9.H.L.H9.H.L|
 
-b
+12.27.2020:
+development branched into two separate branch now:
+dev-1: will pursue boot.bin code where execution starts from assembler start label. In this branch, the code from <start>
+executes OK, but function call to C goes to wrong offset possibly due to the fact non-elf relocation is not happening OK. 
+Note that, boot.bin is created by stripping all elf-specific before <main> label therefore it could be expected.
+
+dev-1-c-main: will pursue boot.bin code where execution starts from C and call asembler function. I can see 800:0 location
+is correctly updated with the main() code however it appears vbox VM is trying to execute the 64-bit binary and interprating 
+it wrongly when looking at u (disassembler) command from vboxdbg.
+ 
