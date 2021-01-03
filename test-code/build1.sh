@@ -44,7 +44,7 @@ fi
 #	Disabling following code for now.
 
 FLAG0=0
-if [[ $FLAG0 -eq - ]] ; then
+if [[ $FLAG0 -eq 0 ]] ; then
 	dd if=$TARGET_DISK_IMG of=ptable.bin skip=446 bs=1 count=$((512-446))
 	echo "created ptable bin:"
 	hexdump -C ptable.bin 

@@ -8,17 +8,17 @@ _start:
 	mov	ax, 0x0002
 	int	0x10
 loop0:
-;	write 'A' 16 times at current cursor.
+;	write SINGLE char at current cursor location. 
+;	This is to show boot mbr code is executing.
+
         mov     ah, 0x0e                ; int 10h, write char.
 	mov 	al, 'G'                 ; char 2 display.
         int     0x10
 
-; 	inode of boot.bin is 12. Load  256 from 323 * 4096 + 11 * 256 onto 0x7e00-0x800 (up to 512 bytes)
-;	from offset 0x18, check and load blocks. onto 0x8000-0x14000, or up to 12 blocks (12 * 4096).
-;	as of 12.24.2020:
-;	stat boot.bin block shows: (0-3): 1024-1027; (4-5): 1536-1537, (6-8): 2048-2050, (9): 1028
-;	
-;	copy to 0:7e000 the first sector.
+;	Copy a data block from sector 121d to 0:7e00 and print one paragraph (16 bytes).
+;	This is to show that int13h disk read service (int13 42h) is working.
+
+;	Copy to 0:7e000 the first sector.
 
 	mov	ah, 0x42		; bios 13h extended read service code.
 	mov	dl, 0x80		; drive No.
@@ -73,10 +73,14 @@ loop1_2a:
 	inc	esi
 	loopne 	loop1
 
+; 	inode of boot.bin is 12. Load a sector from 323 * 4096 + 11 * 256 onto 0x7e00-0x800 (up to 512 bytes)
+;	from offset 0x18, check and load blocks, onto 0x8000-0x14000, or up to 12 blocks (12 * 4096).
+;	as of 12.24.2020:
 ;	load data blocks onto 8000.
 
 ;	File size is cx=12*4096 however, for some reason, after block0:7 is copied, 8th block ends up in cs=f000. 
-;	Some sort of exception or fatal error. Will keep the file size to 8*4096 = 32K.
+;	Some sort of exception or fatal error. Will keep the file size to 8*4096 = 32K and will load 8 blocks
+;	only for now onto 0800:0000.
 
 	mov 	cx, 8 			; Initialize counter, load only max direct blocks which is 12 by ext2 standard.
 	sub	di, di			; [DI] = initialize counter, reverse of CX, rising counter.
@@ -131,35 +135,36 @@ dataBlockLoadLoop:
         int     0x10
 	jmp	0x800:0
 
-;	DAP packet for bios int 13h (ah=0x42)
+;	DAP packet for bios int 13h (ah=0x42).
+; 	Initial state: 16 byte size, 1 sector to read, target offset 0:7e00, sector to read:
+;	2048 * 512 sector(start of primary partition) + \
+;	323(inode table offset block No.) * 4096 (block size) + 10(inodeNo.) + \
+;	256 (inode size) ) / sector size 512.
+;	Inode 10 is loaded because one sector contains 2 inodes entries starting with even inode number.
+;	Since boot.bin inode No. is 11, loading one sector from inode 10 will load inode 10, 11 and
+;	once loaded, advance the pointer by 256 (inode entry size) to get to inode 11.
+
 	align	16
 	db	'DAP.text'
 	align	16
 DAP_text:
 	db 	0x10			; size of this data struct.
 	db 	0x00			; unused.
-;	offset 2. When loading blocks, it should be 8. (blk size / sector size) = 4096 / 512.
+
+;	offset 2. When loading blocks of boot.bin, it should be 8. (blk size / sector size) = 4096 / 512.
+
 	dw	0x01			; No. of sectors to read.
-;	offset 4.
+
+;	offset 4. Target address in memory to load. When loading blocks of boot.bin, it should be 0:8000h.
+
 	dw	0x7e00			; target offset.
 	dw	0x0000			; target segment.
-;	offset 8.
+
+;	offset 8, sector to read.
 	; (2048 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 12(inodeNo.) + 256 (inode size)) / 512 (sector size)
-	dd	0x121d 			; ( (2048 * 512 sector(start of primary partition) + 323(inode offset) * 4096 (blocksz) + 10(inodeNo.) + 256 (inode size) )/ sector size 512
-	dd	0x0			; sector 0 hi?.
+
+	dd	0x121d 			; sector to read, low dword.
+	dd	0x0			; sector to read, hi dword. 
 
         section   .data
-;	DAP packet for bios int 13h (ah=0x42)
 	align	16
-	db	'DAP'
-DAP:
-	align	16
-	db 	0x10			; size of this data struct.
-	db 	0x00			; unused.
-	dw	0x02			; No. of sectors to read.
-	dw	0x8000			; offset.
-	dw	0x0000			; segment.
-	dw	0x0000			; target offset.
-	dd	0x022181		; sector 0 lo?.
-	dd	0x0			; sector 0 hi?.
-
